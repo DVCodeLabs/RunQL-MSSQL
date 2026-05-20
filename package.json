@@ -1,0 +1,58 @@
+{
+  "name": "runql-mssql",
+  "displayName": "RunQL Microsoft SQL Server Connector",
+  "description": "Optional Microsoft SQL Server connector for RunQL.",
+  "publisher": "runql",
+  "icon": "media/icon.png",
+  "version": "1.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DVCodeLabs/RunQL-MSSQL.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DVCodeLabs/RunQL-MSSQL/issues"
+  },
+  "homepage": "https://runql.com/opensource/",
+  "keywords": [
+    "vscode",
+    "vscode-extension",
+    "sql",
+    "mssql",
+    "sql-server",
+    "database",
+    "runql"
+  ],
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Data Science",
+    "Programming Languages",
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "extensionDependencies": [
+    "RunQL-VSCode-Extension.runql"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {},
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "package": "node esbuild.js --production"
+  },
+  "devDependencies": {
+    "@types/mssql": "^12.3.0",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.96.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "mssql": "^12.5.4"
+  }
+}
