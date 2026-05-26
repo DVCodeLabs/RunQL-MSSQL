@@ -11,3 +11,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Microsoft SQL connection provider.
 - `MSSQLAdapter` with query execution, non-query execution, and schema introspection (tables, columns, procedures, functions, parameters).
 
+## [1.0.1]
+
+### Changed
+- change extension icon.
+- Publish to Open VSX marketplace
