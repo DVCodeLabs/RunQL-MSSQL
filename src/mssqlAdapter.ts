@@ -277,6 +277,31 @@ export class MssqlAdapter implements DbAdapter {
     });
   }
 
+  // ─── Optional table-operation capabilities ────────────────────────────────
+  // MSSQL has no built-in `GET_DDL` and `SELECT ... INTO` copies do not
+  // preserve PKs/defaults/indexes — for those operations Core's fallback SQL
+  // is not worse than what this adapter could emit without scripting from
+  // sys.tables/sys.columns/sys.default_constraints. TRUNCATE is a thin native
+  // primitive worth exposing so the capability probe pattern is exercised and
+  // the adapter can be extended in the future without touching Core.
+
+  async truncateTable(
+    profile: ConnectionProfile,
+    secrets: ConnectionSecrets,
+    schema: string | undefined,
+    table: string
+  ): Promise<void> {
+    await this.withPool(profile, secrets, async (pool) => {
+      const fqn = this.quoteQualified(schema, table);
+      await pool.request().query(`TRUNCATE TABLE ${fqn}`);
+    });
+  }
+
+  private quoteQualified(schema: string | undefined, table: string): string {
+    const quote = (n: string) => `[${n.replace(/]/g, ']]')}]`;
+    return schema ? `${quote(schema)}.${quote(table)}` : quote(table);
+  }
+
   private async withPool<T>(
     profile: ConnectionProfile,
     secrets: ConnectionSecrets,
