@@ -112,6 +112,7 @@ export const mssqlProvider: DPProviderDescriptor = {
     oauth: false,
     keypair: false,
     introspection: true,
-    cancellation: true
+    cancellation: true,
+    sshTunnel: true
   }
 };

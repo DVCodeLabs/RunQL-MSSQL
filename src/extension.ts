@@ -18,7 +18,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     api.registerProvider(mssqlProvider),
-    api.registerAdapter('mssql', () => new MssqlAdapter())
+    api.registerAdapter('mssql', () => new MssqlAdapter(api.openSshTunnel?.bind(api)))
   );
 }
 

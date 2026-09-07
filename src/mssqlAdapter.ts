@@ -1,4 +1,5 @@
 import * as sql from 'mssql';
+import * as net from 'net';
 import {
   ColumnModel,
   ConnectionProfile,
@@ -14,6 +15,7 @@ import {
   RoutineModel,
   RoutineParameterModel,
   SchemaIntrospection,
+  SshTunnelResult,
   TableModel
 } from './types';
 
@@ -34,8 +36,15 @@ interface IndexAccumulator {
 const CONNECTION_TIMEOUT_MS = 30000;
 const REQUEST_TIMEOUT_MS = 30000;
 
+type OpenSshTunnelFn = (profile: ConnectionProfile, secrets: ConnectionSecrets) => Promise<SshTunnelResult>;
+
 export class MssqlAdapter implements DbAdapter {
   readonly dialect = 'mssql';
+  private readonly _openSshTunnel?: OpenSshTunnelFn;
+
+  constructor(openSshTunnel?: OpenSshTunnelFn) {
+    this._openSshTunnel = openSshTunnel;
+  }
 
   async testConnection(profile: ConnectionProfile, secrets: ConnectionSecrets): Promise<void> {
     await this.withPool(profile, secrets, async (pool) => {
@@ -307,12 +316,24 @@ export class MssqlAdapter implements DbAdapter {
     secrets: ConnectionSecrets,
     callback: (pool: sql.ConnectionPool) => Promise<T>
   ): Promise<T> {
-    const pool = new sql.ConnectionPool(this.createConfig(profile, secrets));
+    let tunnel: SshTunnelResult | undefined;
+    const config = this.createConfig(profile, secrets);
+
+    if (profile.sshEnabled && this._openSshTunnel) {
+      tunnel = await this._openSshTunnel(profile, secrets);
+      config.options = {
+        ...config.options,
+        connector: () => Promise.resolve(tunnel!.stream as unknown as net.Socket),
+      };
+    }
+
+    const pool = new sql.ConnectionPool(config);
     try {
       await pool.connect();
       return await callback(pool);
     } finally {
       await pool.close();
+      tunnel?.close();
     }
   }
 

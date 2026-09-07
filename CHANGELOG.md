@@ -32,3 +32,9 @@ Right-click any table in RunQL Explorer to:
 - Dump table structure
 - Generate mock data
 - Copy, drop, or truncate a table
+
+## [1.3.0]
+
+### Changes
+
+Add support for leveraging the core SSH Tunnel capability in the RunQL extension.

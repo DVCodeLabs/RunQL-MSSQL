@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { Duplex } from 'stream';
 
 export type ConnectionType = 'data_access' | 'db_admin';
 
@@ -23,6 +24,12 @@ export interface ConnectionProfile {
   role?: string;
   projectId?: string;
   privateKeyPath?: string;
+  sshEnabled?: boolean;
+  sshHost?: string;
+  sshPort?: number;
+  sshUsername?: string;
+  sshAuthMethod?: 'password' | 'privateKey';
+  sshPrivateKeyPath?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,6 +39,9 @@ export interface ConnectionSecrets {
   token?: string;
   privateKeyPassphrase?: string;
   oauthRefreshToken?: string;
+  sshPassword?: string;
+  sshPrivateKey?: string;
+  sshPrivateKeyPassphrase?: string;
   [key: string]: unknown;
 }
 
@@ -218,6 +228,7 @@ export interface DPProviderDescriptor {
     introspection: boolean;
     cancellation: boolean;
     dbAdminConnectionType?: boolean;
+    sshTunnel?: boolean;
   };
 }
 
@@ -238,9 +249,15 @@ export type DPProviderActionHandler = (
   payload: Record<string, unknown>
 ) => Promise<DPProviderActionResult | void> | DPProviderActionResult | void;
 
+export interface SshTunnelResult {
+  stream: Duplex;
+  close: () => void;
+}
+
 export interface RunQLExtensionApi {
   registerProvider(descriptor: DPProviderDescriptor): vscode.Disposable;
   registerAdapter(dialect: string, factory: () => DbAdapter): vscode.Disposable;
   registerProviderActionHandler(dialect: string, handler: DPProviderActionHandler): vscode.Disposable;
   getProviders(): DPProviderDescriptor[];
+  openSshTunnel?(profile: ConnectionProfile, secrets: ConnectionSecrets): Promise<SshTunnelResult>;
 }
